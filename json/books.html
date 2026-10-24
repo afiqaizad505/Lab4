@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 4b - Question 2</title>
+</head>
+<body>
+
+    <h1>Book Information</h1>
+
+    <h2>First Book Title</h2>
+    <p id="firstTitle"></p>
+
+    <h2>Second Book Author</h2>
+    <p id="secondAuthor"></p>
+
+    <h2>Book Genres</h2>
+    <div id="bookGenres"></div>
+
+    <p id="errorMessage" role="alert"></p>
+
+    <script>
+        async function loadBooks() {
+            const errorMessage = document.getElementById("errorMessage");
+
+            try {
+                const response = await fetch("books.json");
+
+                if (!response.ok) {
+                    throw new Error("Failed to load JSON file");
+                }
+
+                const data = await response.json();
+
+                if (!data.books || !Array.isArray(data.books) ||
+                    data.books.length < 2) {
+                    throw new Error("Invalid book data");
+                }
+
+                const books = data.books;
+
+                document.getElementById("firstTitle").textContent =
+                    books[0].title;
+
+                document.getElementById("secondAuthor").textContent =
+                    books[1].author;
+
+                const genreContainer =
+                    document.getElementById("bookGenres");
+
+                genreContainer.replaceChildren();
+
+                books.forEach(function(book) {
+                    if (typeof book.title !== "string" ||
+                        !Array.isArray(book.genres) ||
+                        !book.genres.every(genre =>
+                            typeof genre === "string")) {
+                        throw new Error("Invalid book data");
+                    }
+
+                    const paragraph = document.createElement("p");
+
+                    paragraph.textContent =
+                        book.title + " — " + book.genres.join(", ");
+
+                    genreContainer.appendChild(paragraph);
+                });
+
+            } catch (error) {
+                document.getElementById("firstTitle").textContent = "";
+                document.getElementById("secondAuthor").textContent = "";
+                document.getElementById("bookGenres").replaceChildren();
+
+                errorMessage.textContent =
+                    "Unable to load book information. Please try again.";
+            }
+        }
+
+        loadBooks();
+    </script>
+
+</body>
+</html>
